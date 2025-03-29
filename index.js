@@ -27,14 +27,24 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
+
+    // All DB collection here
+    const database = client.db('studyPlatform');
+    const SessionCollection = database.collection('session');
+
+    app.get('/api/v1/session', async(req, res) => {
+      const sessiondata =  await SessionCollection.find().toArray();
+      res.send(sessiondata);
+    });
+
     console.log('You successfully connected to MongoDB!');
   } finally {
   }
 }
 run().catch(console.dir);
 
-app.use('/', (req, res) => {
-  res.send('student platform');
+app.get('/', (req, res) => {
+  res.send('student platform is on');
 });
 
 app.listen(port, () => {
