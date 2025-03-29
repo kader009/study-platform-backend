@@ -1,4 +1,4 @@
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -32,8 +32,16 @@ async function run() {
     const database = client.db('studyPlatform');
     const SessionCollection = database.collection('session');
 
-    app.get('/api/v1/session', async(req, res) => {
-      const sessiondata =  await SessionCollection.find().toArray();
+    // get all session data here
+    app.get('/api/v1/session', async (req, res) => {
+      const sessiondata = await SessionCollection.find().toArray();
+      res.send(sessiondata);
+    });
+
+    app.get('/api/v1/session/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const sessiondata = await SessionCollection.findOne(query);
       res.send(sessiondata);
     });
 
