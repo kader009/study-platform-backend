@@ -58,6 +58,23 @@ async function run() {
       }
     });
 
+    // login user
+    app.post('/login', async (req, res) => {
+      const { email, password } = req.body;
+
+      const user = await UserCollection.findOne({ email });
+
+      if (!user) {
+        res.status(404).send({ error: 'user not found' });
+      }
+
+      if (user.password !== password) {
+        res.status(401).send({ error: 'invalid password' });
+      }
+
+      res.send(user);
+    });
+
     console.log('You successfully connected to MongoDB!');
   } finally {
   }
