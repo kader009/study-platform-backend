@@ -1,4 +1,4 @@
-import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
+import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb'; 
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -31,6 +31,7 @@ async function run() {
     // All DB collection here
     const database = client.db('studyPlatform');
     const SessionCollection = database.collection('session');
+    const UserCollection = database.collection('user');
 
     // get all session data here
     app.get('/api/v1/session', async (req, res) => {
@@ -38,11 +39,23 @@ async function run() {
       res.send(sessiondata);
     });
 
+    // single session get here
     app.get('/api/v1/session/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const sessiondata = await SessionCollection.findOne(query);
       res.send(sessiondata);
+    });
+
+    // user create and save in the database
+    app.post('/api/v1/user', async (req, res) => {
+      const data = req.body;
+      try {
+        const result = await UserCollection.insertOne(data)
+        res.send(result)
+      } catch (error) {
+        console.log(error)
+      }
     });
 
     console.log('You successfully connected to MongoDB!');
