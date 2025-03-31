@@ -49,17 +49,30 @@ async function run() {
 
     // user create and save in the database
     app.post('/api/v1/user', async (req, res) => {
-      const data = req.body;
+      const data = req.body; 
+      const email = data.email;
       try {
+        const existingUser = await UserCollection.findOne({email})
+
+        if(existingUser){
+          res.status(409).send({
+            successs: false,
+            message: 'Email already exist in the database'
+          })
+        }
         const result = await UserCollection.insertOne(data)
-        res.send(result)
+        res.send({successs: true, message: 'User created successfully.',result}) 
       } catch (error) {
         console.log(error)
+        res.status(500).send({
+          successs:false,
+          message: 'External server error.'
+        })
       }
     });
 
     // login user
-    app.post('/login', async (req, res) => {
+    app.post('/api/v1/login', async (req, res) => {
       const { email, password } = req.body;
 
       const user = await UserCollection.findOne({ email });
