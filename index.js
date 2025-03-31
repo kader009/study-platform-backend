@@ -96,6 +96,14 @@ async function run() {
       res.send(noteSend)
     })
 
+    // note get based on the email
+    app.get('/api/v1/notes/:email', async(req, res) =>{
+      const email = req.params.email;
+      const query = {email:email}
+      const findNote = await NoteCollection.find(query).toArray({})
+      res.send(findNote)
+    })
+
     console.log('You successfully connected to MongoDB!');
   } finally {
   }
