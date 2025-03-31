@@ -32,6 +32,7 @@ async function run() {
     const database = client.db('studyPlatform');
     const SessionCollection = database.collection('session');
     const UserCollection = database.collection('user');
+    const NoteCollection = database.collection('note');
 
     // get all session data here
     app.get('/api/v1/session', async (req, res) => {
@@ -88,6 +89,13 @@ async function run() {
       res.send(user);
     });
 
+    // note creation route here
+    app.post('/api/v1/notes', async(req, res) =>{
+      const NoteData = req.body;
+      const noteSend = await NoteCollection.insertOne(NoteData)
+      res.send(noteSend)
+    })
+
     console.log('You successfully connected to MongoDB!');
   } finally {
   }
@@ -95,7 +103,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get('/', (req, res) => {
-  res.send('student platform is on');
+  res.send('student platform server is on');
 });
 
 app.listen(port, () => {
