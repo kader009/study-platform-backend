@@ -122,13 +122,29 @@ async function run() {
       }
     })
 
-    app.patch('/api/v1/notes/:id', (req, res) =>{
+    app.patch('/api/v1/notes/:id', async(req, res) =>{
       const id = req.params.id;
+      const {title, description} = req.body;
 
       try {
-        
+        const updateNote = await NoteCollection.updateOne({_id: new ObjectId(id)}, {$set:{title, description}});
+
+        if(updateNote.matchedCount === 1){
+          res.status(200).json({
+            successs:true,
+            message: 'Note update successfully'
+          })
+        }else{
+          res.status(404).json({
+            successs: false,
+            message:'Note not found.'
+          })
+        }
       } catch (error) {
-        
+        console.log(error);
+        res.status(500).json({
+          message:'Fail to update note data.'
+        })
       }
     })
 
