@@ -104,6 +104,34 @@ async function run() {
       res.send(findNote)
     })
 
+    // delete note based on the id
+    app.delete('/api/v1/notes/:id', async(req, res) =>{
+      const id = req.params.id;
+      try {       
+        const deleteNote = await NoteCollection.deleteOne({_id: new ObjectId(id)});
+
+        if(deleteNote.deletedCount === 1){
+          res.status(200).json({successs: true, message: 'Note delete successfully.'})
+        }else{
+          res.status(404).json({successs:false, message: 'Note not found.'})
+        }
+        
+      } catch (error) {
+        console.log(error)
+        res.status(500).json({message: 'Failed to delete the note.'})
+      }
+    })
+
+    app.patch('/api/v1/notes/:id', (req, res) =>{
+      const id = req.params.id;
+
+      try {
+        
+      } catch (error) {
+        
+      }
+    })
+
     console.log('You successfully connected to MongoDB!');
   } finally {
   }
