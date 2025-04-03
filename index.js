@@ -1,4 +1,4 @@
-import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb'; 
+import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -50,26 +50,36 @@ async function run() {
 
     // user create and save in the database
     app.post('/api/v1/user', async (req, res) => {
-      const data = req.body; 
+      const data = req.body;
       const email = data.email;
       try {
-        const existingUser = await UserCollection.findOne({email})
+        const existingUser = await UserCollection.findOne({ email });
 
-        if(existingUser){
+        if (existingUser) {
           res.status(409).send({
             successs: false,
-            message: 'Email already exist in the database'
-          })
+            message: 'Email already exist in the database',
+          });
         }
-        const result = await UserCollection.insertOne(data)
-        res.send({successs: true, message: 'User created successfully.',result}) 
+        const result = await UserCollection.insertOne(data);
+        res.send({
+          successs: true,
+          message: 'User created successfully.',
+          result,
+        });
       } catch (error) {
-        console.log(error)
+        console.log(error);
         res.status(500).send({
-          successs:false,
-          message: 'External server error.'
-        })
+          successs: false,
+          message: 'External server error.',
+        });
       }
+    });
+
+    // get all user here
+    app.get('/api/v1/user', async (req, res) => {
+      const allUser = await UserCollection.find().toArray();
+      res.send(allUser);
     });
 
     // login user
@@ -90,63 +100,70 @@ async function run() {
     });
 
     // note creation route here
-    app.post('/api/v1/notes', async(req, res) =>{
+    app.post('/api/v1/notes', async (req, res) => {
       const NoteData = req.body;
-      const noteSend = await NoteCollection.insertOne(NoteData)
-      res.send(noteSend)
-    })
+      const noteSend = await NoteCollection.insertOne(NoteData);
+      res.send(noteSend);
+    });
 
     // note get based on the email
-    app.get('/api/v1/notes/:email', async(req, res) =>{
+    app.get('/api/v1/notes/:email', async (req, res) => {
       const email = req.params.email;
-      const query = {email:email}
-      const findNote = await NoteCollection.find(query).toArray({})
-      res.send(findNote)
-    })
+      const query = { email: email };
+      const findNote = await NoteCollection.find(query).toArray({});
+      res.send(findNote);
+    });
 
     // delete note based on the id
-    app.delete('/api/v1/notes/:id', async(req, res) =>{
+    app.delete('/api/v1/notes/:id', async (req, res) => {
       const id = req.params.id;
-      try {       
-        const deleteNote = await NoteCollection.deleteOne({_id: new ObjectId(id)});
+      try {
+        const deleteNote = await NoteCollection.deleteOne({
+          _id: new ObjectId(id),
+        });
 
-        if(deleteNote.deletedCount === 1){
-          res.status(200).json({successs: true, message: 'Note delete successfully.'})
-        }else{
-          res.status(404).json({successs:false, message: 'Note not found.'})
+        if (deleteNote.deletedCount === 1) {
+          res
+            .status(200)
+            .json({ successs: true, message: 'Note delete successfully.' });
+        } else {
+          res.status(404).json({ successs: false, message: 'Note not found.' });
         }
-        
       } catch (error) {
-        console.log(error)
-        res.status(500).json({message: 'Failed to delete the note.'})
+        console.log(error);
+        res.status(500).json({ message: 'Failed to delete the note.' });
       }
-    })
+    });
 
-    app.patch('/api/v1/notes/:id', async(req, res) =>{
+    // update note data based on the id
+    app.patch('/api/v1/notes/:id', async (req, res) => {
       const id = req.params.id;
-      const {title, description} = req.body;
+      const { title, description } = req.body;
 
       try {
-        const updateNote = await NoteCollection.updateOne({_id: new ObjectId(id)}, {$set:{title, description}});
+        const updateNote = await NoteCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { title, description } }
+        );
 
-        if(updateNote.matchedCount === 1){
+        if (updateNote.matchedCount === 1) {
           res.status(200).json({
-            successs:true,
-            message: 'Note update successfully'
-          })
-        }else{
+            successs: true,
+            message: 'Note update successfully',
+          });
+        } else {
           res.status(404).json({
             successs: false,
-            message:'Note not found.'
-          })
+            message: 'Note not found.',
+          });
         }
       } catch (error) {
         console.log(error);
         res.status(500).json({
-          message:'Fail to update note data.'
-        })
+          message: 'Fail to update note data.',
+        });
       }
-    })
+    });
 
     console.log('You successfully connected to MongoDB!');
   } finally {
