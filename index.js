@@ -82,6 +82,22 @@ async function run() {
       res.send(allUser);
     });
 
+    // update user role
+    app.patch('/api/v1/user/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const updateRole = { $set: { role: 'admin' } };
+      const allUser = await UserCollection.updateOne(query, updateRole);
+      res.send(allUser);
+    });
+
+    // get tutor based on role
+    app.get('/api/v1/tutor', async (req, res) => {
+      const tutor = { role: 'tutor' };
+      const Tutorresponse = await UserCollection.find(tutor).toArray();
+      res.send(Tutorresponse);
+    });
+
     // login user
     app.post('/api/v1/login', async (req, res) => {
       const { email, password } = req.body;
