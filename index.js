@@ -48,6 +48,26 @@ async function run() {
       res.send(sessiondata);
     });
 
+    app.delete('/api/v1/session/:id', async (req, res) => {
+      const id = req.params.id;
+      try {
+        const deleteNote = await SessionCollection.deleteOne({
+          _id: new ObjectId(id),
+        });
+
+        if (deleteNote.deletedCount === 1) {
+          res
+            .status(200)
+            .json({ successs: true, message: 'session delete successfully.' });
+        } else {
+          res.status(404).json({ successs: false, message: 'session not found.' });
+        }
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Failed to delete the session.' });
+      }
+    });
+
     // user create and save in the database
     app.post('/api/v1/user', async (req, res) => {
       const data = req.body;
@@ -116,14 +136,14 @@ async function run() {
     });
 
     // note creation route here
-    app.post('/api/v1/notes', async (req, res) => {
+    app.post('/api/v1/note', async (req, res) => {
       const NoteData = req.body;
       const noteSend = await NoteCollection.insertOne(NoteData);
       res.send(noteSend);
     });
 
     // note get based on the email
-    app.get('/api/v1/notes/:email', async (req, res) => {
+    app.get('/api/v1/note/:email', async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const findNote = await NoteCollection.find(query).toArray({});
@@ -131,7 +151,7 @@ async function run() {
     });
 
     // delete note based on the id
-    app.delete('/api/v1/notes/:id', async (req, res) => {
+    app.delete('/api/v1/note/:id', async (req, res) => {
       const id = req.params.id;
       try {
         const deleteNote = await NoteCollection.deleteOne({
@@ -152,7 +172,7 @@ async function run() {
     });
 
     // update note data based on the id
-    app.patch('/api/v1/notes/:id', async (req, res) => {
+    app.patch('/api/v1/note/:id', async (req, res) => {
       const id = req.params.id;
       const { title, description } = req.body;
 
@@ -162,9 +182,9 @@ async function run() {
           { $set: { title, description } }
         );
 
-        if (updateNote.matchedCount === 1) {
+        if (updateNote.matchedCount === 1 && updateNote.modifiedCount === 1) {
           res.status(200).json({
-            successs: true,
+            success: true,
             message: 'Note update successfully',
           });
         } else {
