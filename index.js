@@ -40,6 +40,24 @@ async function run() {
       res.send(sessiondata);
     });
 
+    // post session from the tutor
+    app.post('/api/v1/session', async(req, res) =>{
+      const SessionPost = req.body;
+      const result = await SessionCollection.insertOne(SessionPost)
+      res.send(result)
+    })
+
+    // get approved session only
+    app.get('/api/v1/session/approved', async(req, res) =>{
+      try {   
+        const Approvesession = await SessionCollection.find({status: 'approved'}).toArray();
+        res.status(200).send(Approvesession)
+      } catch (error) {
+        console.log(error)
+        res.status(404).json({message: 'approved session not found.'})
+      }
+    })
+
     // single session get here
     app.get('/api/v1/session/:id', async (req, res) => {
       const id = req.params.id;
@@ -72,12 +90,6 @@ async function run() {
     // update session data rejected/approve
     app.patch('/api/v1/session/approve/:id', async(req, res) =>{
       const { id } = req.params;
-      
-      if(!ObjectId.isvalid(id)){
-        res.status(400).json({
-          message: 'invalid session id'
-        })
-      }
 
       try {
         const updateSession = await SessionCollection.updateOne({_id: new ObjectId(id)}, {$set:{ status: 'approved'}})
