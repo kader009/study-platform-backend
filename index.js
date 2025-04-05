@@ -48,6 +48,7 @@ async function run() {
       res.send(sessiondata);
     });
 
+    // single session delete here
     app.delete('/api/v1/session/:id', async (req, res) => {
       const id = req.params.id;
       try {
@@ -67,6 +68,30 @@ async function run() {
         res.status(500).json({ message: 'Failed to delete the session.' });
       }
     });
+
+    // update session data rejected/approve
+    app.patch('/api/v1/session/approve/:id', async(req, res) =>{
+      const { id } = req.params;
+      
+      if(!ObjectId.isvalid(id)){
+        res.status(400).json({
+          message: 'invalid session id'
+        })
+      }
+
+      try {
+        const updateSession = await SessionCollection.updateOne({_id: new ObjectId(id)}, {$set:{ status: 'approved'}})
+        if(updateSession.matchedCount === 0){
+          res.status(404).json({message: 'session not found.'})
+        }
+
+        res.json({message: 'session update successfully.'})
+
+      } catch (error) {
+        console.log(error)
+        res.status(500).json({message: 'Failed to approve session.'})
+      }
+    })
 
     // user create and save in the database
     app.post('/api/v1/user', async (req, res) => {
