@@ -112,10 +112,10 @@ async function run() {
     });
 
     // get session based on tutor email
-    app.get('/api/v1/session/:email', (req, res) => {
+    app.get('/api/v1/session/:email', async(req, res) => {
       const email = req.params.email;
       const query = { tutorEmail: email };
-      const GetEmail = SessionCollection.find(query).toArray();
+      const GetEmail = await SessionCollection.find(query).toArray();
       res.send(GetEmail);
     });
 
