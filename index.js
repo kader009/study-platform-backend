@@ -41,22 +41,24 @@ async function run() {
     });
 
     // post session from the tutor
-    app.post('/api/v1/session', async(req, res) =>{
+    app.post('/api/v1/session', async (req, res) => {
       const SessionPost = req.body;
-      const result = await SessionCollection.insertOne(SessionPost)
-      res.send(result)
-    })
+      const result = await SessionCollection.insertOne(SessionPost);
+      res.send(result);
+    });
 
     // get approved session only
-    app.get('/api/v1/session/approved', async(req, res) =>{
-      try {   
-        const Approvesession = await SessionCollection.find({status: 'approved'}).toArray();
-        res.status(200).send(Approvesession)
+    app.get('/api/v1/session/approved', async (req, res) => {
+      try {
+        const Approvesession = await SessionCollection.find({
+          status: 'approved',
+        }).toArray();
+        res.status(200).send(Approvesession);
       } catch (error) {
-        console.log(error)
-        res.status(404).json({message: 'approved session not found.'})
+        console.log(error);
+        res.status(404).json({ message: 'approved session not found.' });
       }
-    })
+    });
 
     // single session get here
     app.get('/api/v1/session/:id', async (req, res) => {
@@ -79,7 +81,9 @@ async function run() {
             .status(200)
             .json({ successs: true, message: 'session delete successfully.' });
         } else {
-          res.status(404).json({ successs: false, message: 'session not found.' });
+          res
+            .status(404)
+            .json({ successs: false, message: 'session not found.' });
         }
       } catch (error) {
         console.log(error);
@@ -88,22 +92,32 @@ async function run() {
     });
 
     // update session data rejected/approve
-    app.patch('/api/v1/session/approve/:id', async(req, res) =>{
+    app.patch('/api/v1/session/approve/:id', async (req, res) => {
       const { id } = req.params;
 
       try {
-        const updateSession = await SessionCollection.updateOne({_id: new ObjectId(id)}, {$set:{ status: 'approved'}})
-        if(updateSession.matchedCount === 0){
-          res.status(404).json({message: 'session not found.'})
+        const updateSession = await SessionCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { status: 'approved' } }
+        );
+        if (updateSession.matchedCount === 0) {
+          res.status(404).json({ message: 'session not found.' });
         }
 
-        res.json({message: 'session update successfully.'})
-
+        res.json({ message: 'session update successfully.' });
       } catch (error) {
-        console.log(error)
-        res.status(500).json({message: 'Failed to approve session.'})
+        console.log(error);
+        res.status(500).json({ message: 'Failed to approve session.' });
       }
-    })
+    });
+
+    // get session based on tutor email
+    app.get('/api/v1/session/:email', (req, res) => {
+      const email = req.params.email;
+      const query = { tutorEmail: email };
+      const GetEmail = SessionCollection.find(query).toArray();
+      res.send(GetEmail);
+    });
 
     // user create and save in the database
     app.post('/api/v1/user', async (req, res) => {
@@ -137,6 +151,24 @@ async function run() {
     app.get('/api/v1/user', async (req, res) => {
       const allUser = await UserCollection.find().toArray();
       res.send(allUser);
+    });
+
+    // get single tutor from the user list
+    app.get('api/v1/singletutor', async (req, res) => {
+      const email = req.user.email;
+
+      try {
+        const tutor = await UserCollection.findOne({ email, role: 'tutor' });
+
+        if (!tutor) {
+          return res.status(404).json({ message: 'tutor not found' });
+        }
+
+        res.json(tutor);
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Interval server error.' });
+      }
     });
 
     // update user role
