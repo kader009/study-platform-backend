@@ -60,6 +60,19 @@ async function run() {
       }
     });
 
+    // get approved session by tutor email
+    app.get('/api/v1/session/approved/:email', async (req, res) => {
+      const email = req.params.email
+      try {
+        const query = {tutorEmail: email, status: 'approved'}
+        const Approvesession = await SessionCollection.find(query).toArray();
+        res.status(200).send(Approvesession);
+      } catch (error) {
+        console.log(error);
+        res.status(404).json({ message: 'approved session not found.' });
+      }
+    });
+
     // single session get here
     app.get('/api/v1/session/:id', async (req, res) => {
       const id = req.params.id;
