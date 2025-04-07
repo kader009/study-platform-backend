@@ -1,5 +1,5 @@
 import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
-import express from 'express';
+import express from 'express'; 
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
@@ -63,10 +63,25 @@ async function run() {
     // single session get here
     app.get('/api/v1/session/:id', async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const sessiondata = await SessionCollection.findOne(query);
-      res.send(sessiondata);
+    
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).send({ message: 'Invalid session ID format' });
+      }
+    
+      try {
+        const sessiondata = await SessionCollection.findOne({ _id: new ObjectId(id) });
+    
+        if (!sessiondata) {
+          return res.status(404).send({ message: 'Session not found' });
+        }
+    
+        res.send(sessiondata);
+      } catch (error) {
+        console.error('Error fetching session:', error);
+        res.status(500).send({ message: 'Server error', error });
+      }
     });
+    
 
     // single session delete here
     app.delete('/api/v1/session/:id', async (req, res) => {
@@ -112,11 +127,16 @@ async function run() {
     });
 
     // get session based on tutor email
-    app.get('/api/v1/session/:email', async(req, res) => {
+    app.get('/api/v1/session/email/:email', async (req, res) => {
       const email = req.params.email;
       const query = { tutorEmail: email };
-      const GetEmail = await SessionCollection.find(query).toArray();
-      res.send(GetEmail);
+      try {
+        const sessionFortutor = await SessionCollection.find(query).toArray();
+        res.send(sessionFortutor);
+      } catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'server error', error });
+      }
     });
 
     // user create and save in the database
