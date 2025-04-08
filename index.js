@@ -161,6 +161,25 @@ async function run() {
       res.send(saveMaterial);
     });
 
+    // get all material route
+    app.get('/api/v1/material', async (req, res) => {
+      const getAllmaterial = await MaterialCollection.find().toArray();
+      res.send(getAllmaterial);
+    });
+
+    // get material based on the email
+    app.get('/api/v1/material/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { TutorEmail: email };
+      try {
+        const sessionMaterial = await MaterialCollection.find(query).toArray();
+        res.send(sessionMaterial);
+      } catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'server error', error });
+      }
+    });
+
     // user create and save in the database
     app.post('/api/v1/user', async (req, res) => {
       const data = req.body;
