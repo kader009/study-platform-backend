@@ -180,6 +180,26 @@ async function run() {
       }
     });
 
+    // delete material from tutor dashboard
+    app.delete('/api/v1/material/:id', async (req, res) => {
+      const { id } = req.params;
+
+      try {
+        const deleteMaterial = await MaterialCollection.deleteOne({
+          _id: new ObjectId(id),
+        });
+
+        if (deleteMaterial.deletedCount === 0) {
+          return res.status(404).json({ error: 'Material not found' });
+        }
+
+        res.status(200).json({ message: 'Material deleted successfully' });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'failed to delete material' });
+      }
+    });
+
     // user create and save in the database
     app.post('/api/v1/user', async (req, res) => {
       const data = req.body;
