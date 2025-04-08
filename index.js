@@ -1,5 +1,5 @@
 import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
-import express from 'express'; 
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
@@ -33,6 +33,7 @@ async function run() {
     const SessionCollection = database.collection('session');
     const UserCollection = database.collection('user');
     const NoteCollection = database.collection('note');
+    const MaterialCollection = database.collection('material');
 
     // get all session data here
     app.get('/api/v1/session', async (req, res) => {
@@ -62,9 +63,9 @@ async function run() {
 
     // get approved session by tutor email
     app.get('/api/v1/session/approved/:email', async (req, res) => {
-      const email = req.params.email
+      const email = req.params.email;
       try {
-        const query = {tutorEmail: email, status: 'approved'}
+        const query = { tutorEmail: email, status: 'approved' };
         const Approvesession = await SessionCollection.find(query).toArray();
         res.status(200).send(Approvesession);
       } catch (error) {
@@ -76,25 +77,26 @@ async function run() {
     // single session get here
     app.get('/api/v1/session/:id', async (req, res) => {
       const id = req.params.id;
-    
+
       if (!ObjectId.isValid(id)) {
         return res.status(400).send({ message: 'Invalid session ID format' });
       }
-    
+
       try {
-        const sessiondata = await SessionCollection.findOne({ _id: new ObjectId(id) });
-    
+        const sessiondata = await SessionCollection.findOne({
+          _id: new ObjectId(id),
+        });
+
         if (!sessiondata) {
           return res.status(404).send({ message: 'Session not found' });
         }
-    
+
         res.send(sessiondata);
       } catch (error) {
         console.error('Error fetching session:', error);
         res.status(500).send({ message: 'Server error', error });
       }
     });
-    
 
     // single session delete here
     app.delete('/api/v1/session/:id', async (req, res) => {
@@ -119,7 +121,7 @@ async function run() {
       }
     });
 
-    // update session data rejected/approve
+    // update session data approve
     app.patch('/api/v1/session/approve/:id', async (req, res) => {
       const { id } = req.params;
 
@@ -150,6 +152,13 @@ async function run() {
         console.log(error);
         res.status(500).send({ message: 'server error', error });
       }
+    });
+
+    // material post route for database
+    app.post('/api/v1/material', async (req, res) => {
+      const material = req.body;
+      const saveMaterial = await MaterialCollection.insertOne(material);
+      res.send(saveMaterial);
     });
 
     // user create and save in the database
