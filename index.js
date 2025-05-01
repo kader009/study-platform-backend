@@ -20,12 +20,13 @@ const verifyToken = (req, res, next) => {
     return res.status(401).send({ message: 'Unauthorized Access' });
   }
 
-  const token = req.headers.authorization.spit(' ')[1];
+  const token = req.headers.authorization.split(' ')[1];
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SCRET, (error, decoded) => {
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, decoded) => {
     if (error) {
       return res.status(401).send({ message: 'Unauthorized Access' });
     }
+    console.log(process.env.ACCESS_TOKEN_SECRET)
     req.decoded = decoded;
     next();
   });
@@ -368,7 +369,14 @@ async function run() {
         res.status(401).send({ error: 'invalid password' });
       }
 
-      res.send(user);
+      const token = jwt.sign({email: user.email, role:user.role}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '7d'})
+
+      res.status(200).send({
+        success:true,
+        message:'Login successful',
+        user,
+        token
+      });
     });
 
     // note creation route here
