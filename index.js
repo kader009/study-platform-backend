@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import jwt from 'jsonwebtoken';
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -11,6 +12,24 @@ app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
 dotenv.config();
+
+// verify token
+
+const verifyToken = (req, res, next) => {
+  if (!req.headers.authorization) {
+    return res.status(401).send({ message: 'Unauthorized Access' });
+  }
+
+  const token = req.headers.authorization.spit(' ')[1];
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SCRET, (error, decoded) => {
+    if (error) {
+      return res.status(401).send({ message: 'Unauthorized Access' });
+    }
+    req.decoded = decoded;
+    next();
+  });
+};
 
 // mongodb ulr
 const uri = process.env.DATABASE_URL;
