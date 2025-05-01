@@ -154,6 +154,47 @@ async function run() {
       }
     });
 
+    // admin registration fee update here
+    app.patch('/api/v1/session/:id', async (req, res) => {
+      const { id } = req.params;
+      const { registrationFee } = req.body;
+
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ error: 'Invalid session ID' });
+      }
+
+      try {
+        const existingSession = await SessionCollection.findOne({
+          _id: new ObjectId(id),
+        });
+
+        if (!existingSession) {
+          res.status(404).json({ message: 'session not found' });
+        }
+
+        const updateSession = await SessionCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { registrationFee } }
+        );
+
+        if (updateSession.matchedCount === 0) {
+          return res.status(404).json({ message: 'session not found' });
+        }
+
+        // Fetch the updated session document
+        const updatedSession = await SessionCollection.findOne({
+          _id: new ObjectId(id),
+        });
+
+        res
+          .status(200)
+          .json({ message: 'session update successfully', updatedSession });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'failed to update session' });
+      }
+    });
+
     // material post route for database
     app.post('/api/v1/material', async (req, res) => {
       const material = req.body;
@@ -197,6 +238,32 @@ async function run() {
       } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'failed to delete material' });
+      }
+    });
+
+    // update material from the tutor
+    app.patch('/api/v1/material/:id', async (req, res) => {
+      const { id } = req.params;
+      const { TutorEmail, UploadImages, GoogledriveLink } = req.body;
+
+      const updateData = {};
+      if (TutorEmail) updateData.TutorEmail = TutorEmail;
+      if (UploadImages) updateData.UploadImages = UploadImages;
+      if (GoogledriveLink) updateData.GoogledriveLink = GoogledriveLink;
+
+      try {
+        const updateMaterial = await MaterialCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: updateData }
+        );
+        if (updateMaterial.matchedCount === 0) {
+          res.status(404).json({ message: 'material not found.' });
+        }
+
+        res.json({ message: 'material update successfully.' });
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Failed to update material.' });
       }
     });
 
