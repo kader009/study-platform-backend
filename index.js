@@ -54,6 +54,7 @@ async function run() {
     const UserCollection = database.collection('user');
     const NoteCollection = database.collection('note');
     const MaterialCollection = database.collection('material');
+    const BookedCollection = database.collection('booked');
 
     // get all session data here
     app.get('/api/v1/session', async (req, res) => {
@@ -229,7 +230,7 @@ async function run() {
     });
 
     // get material based on the email
-    app.get('/api/v1/material/:email', async (req, res) => {
+    app.get('/api/v1/material/:email', verifyToken, async (req, res) => {
       const email = req.params.email;
       const query = { TutorEmail: email };
       try {
@@ -286,6 +287,37 @@ async function run() {
         res.status(500).json({ message: 'Failed to update material.' });
       }
     });
+
+    // booked session post
+    app.post('/api/v1/book-session', async(req, res) =>{
+      const {sessionId, studentEmail, registrationFee, tutorEmail} = req.body;
+      try {
+        const session = await SessionCollection.findOne({_id: new ObjectId(sessionId)})
+
+        if(!session){
+          return res.status(404).json({error: 'Session not found'})
+        }
+
+        const result = await BookedCollection.insertOne({
+          sessionId, studentEmail, registrationFee, tutorEmail, status:'booked',
+          bookedAt: new Date()
+        })
+
+        if(result.insertedId){
+          return res.status(200).json({
+            message:'Booking added successfully',
+            insertedId: result.insertedId
+          })
+        }else{
+          return res.status(500).json({
+            error:' failed to insert booking data in to the database'
+          })
+        }
+      } catch (error) {
+        console.error('Error in booking session', error)
+        res.status(500).json({error: 'internal server error'})
+      }
+    })
 
     // user create and save in the database
     app.post('/api/v1/user', async (req, res) => {
