@@ -291,6 +291,7 @@ async function run() {
     // booked session post
     app.post('/api/v1/book-session', async(req, res) =>{
       const {sessionId, studentEmail, registrationFee, tutorEmail} = req.body;
+
       try {
         const session = await SessionCollection.findOne({_id: new ObjectId(sessionId)})
 
@@ -308,6 +309,7 @@ async function run() {
             message:'Booking added successfully',
             insertedId: result.insertedId
           })
+
         }else{
           return res.status(500).json({
             error:' failed to insert booking data in to the database'
@@ -317,6 +319,14 @@ async function run() {
         console.error('Error in booking session', error)
         res.status(500).json({error: 'internal server error'})
       }
+    })
+
+    // booked session by email
+    app.get('/api/v1/book-session/:email', async(req, res) =>{
+      const email = req.params.email;
+      const query = {studentEmail: email};
+      const getBooked = await BookedCollection.find(query).toArray();
+      res.send(getBooked)
     })
 
     // user create and save in the database
