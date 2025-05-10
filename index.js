@@ -26,7 +26,7 @@ const verifyToken = (req, res, next) => {
     if (error) {
       return res.status(401).send({ message: 'Unauthorized Access' });
     }
-    console.log(process.env.ACCESS_TOKEN_SECRET)
+    console.log(process.env.ACCESS_TOKEN_SECRET);
     req.decoded = decoded;
     next();
   });
@@ -289,45 +289,76 @@ async function run() {
     });
 
     // booked session post
-    app.post('/api/v1/book-session', async(req, res) =>{
-      const {sessionId, studentEmail, registrationFee, tutorEmail} = req.body;
+    app.post('/api/v1/book-session', async (req, res) => {
+      const { sessionId, studentEmail, registrationFee, tutorEmail } = req.body;
 
       try {
-        const session = await SessionCollection.findOne({_id: new ObjectId(sessionId)})
+        const session = await SessionCollection.findOne({
+          _id: new ObjectId(sessionId),
+        });
 
-        if(!session){
-          return res.status(404).json({error: 'Session not found'})
+        if (!session) {
+          return res.status(404).json({ error: 'Session not found' });
         }
 
         const result = await BookedCollection.insertOne({
-          sessionId, studentEmail, registrationFee, tutorEmail, status:'booked',
-          bookedAt: new Date()
-        })
+          sessionId,
+          studentEmail,
+          registrationFee,
+          tutorEmail,
+          status: 'booked',
+          bookedAt: new Date(),
+        });
 
-        if(result.insertedId){
+        if (result.insertedId) {
           return res.status(200).json({
-            message:'Booking added successfully',
-            insertedId: result.insertedId
-          })
-
-        }else{
+            message: 'Booking added successfully',
+            insertedId: result.insertedId,
+          });
+        } else {
           return res.status(500).json({
-            error:' failed to insert booking data in to the database'
-          })
+            error: ' failed to insert booking data in to the database',
+          });
         }
       } catch (error) {
-        console.error('Error in booking session', error)
-        res.status(500).json({error: 'internal server error'})
+        console.error('Error in booking session', error);
+        res.status(500).json({ error: 'internal server error' });
       }
-    })
+    });
 
     // booked session by email
-    app.get('/api/v1/book-session/:email', async(req, res) =>{
+    app.get('/api/v1/book-session/:email', async (req, res) => {
       const email = req.params.email;
-      const query = {studentEmail: email};
+      const query = { studentEmail: email };
       const getBooked = await BookedCollection.find(query).toArray();
-      res.send(getBooked)
-    })
+      res.send(getBooked);
+    });
+
+    // get book sesion by id
+    app.get('/api/v1/book-session/:id', async (req, res) => {
+      const { id } = req.params;
+
+      try {
+        const query = { SessionId: id };
+        const session = await MaterialCollection.find(query).toArray();
+        console.log('sessionId', session);
+
+        if (!session || session.length === 0) {
+          return res.status(404).json({
+            message: 'session not found',
+          });
+        }
+
+        res
+          .status(200)
+          .json({ msessage: 'session fetch successfully', session });
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({
+          message: 'failed to get booked session',
+        });
+      }
+    });
 
     // user create and save in the database
     app.post('/api/v1/user', async (req, res) => {
@@ -411,13 +442,17 @@ async function run() {
         res.status(401).send({ error: 'invalid password' });
       }
 
-      const token = jwt.sign({email: user.email, role:user.role}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '7d'})
+      const token = jwt.sign(
+        { email: user.email, role: user.role },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: '7d' }
+      );
 
       res.status(200).send({
-        success:true,
-        message:'Login successful',
+        success: true,
+        message: 'Login successful',
         user,
-        token
+        token,
       });
     });
 
