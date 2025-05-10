@@ -9,7 +9,14 @@ const port = process.env.PORT || 5000;
 
 // middleware
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:3000' })); 
+app.use(
+  cors({
+    origin: [
+      'http://localhost:3000',
+      'https://study-platform-frontend-azure.vercel.app',
+    ],
+  })
+);
 app.use(cookieParser());
 dotenv.config();
 
