@@ -15,6 +15,7 @@ app.use(
       'http://localhost:3000',
       'https://study-platform-frontend-azure.vercel.app',
     ],
+    credentials: true,
   })
 );
 app.use(cookieParser());
