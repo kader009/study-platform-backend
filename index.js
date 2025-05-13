@@ -464,6 +464,46 @@ async function run() {
       });
     });
 
+    // login user for social
+    app.post('/api/v1/social-login', async (req, res) => {
+      const { name, email, image } = req.body;
+
+      try {
+        const user = await UserCollection.findOne({ email });
+
+        if (!user) {
+          const newUser = {
+            name,
+            email,
+            image,
+            role: 'student',
+            createdAt: new Date(),
+          };
+
+          const result = await UserCollection.insertOne(newUser);
+          user = result;
+        }
+
+        const token = jwt.sign(
+          { email: user.email, role: user.role },
+          process.env.ACCESS_TOKEN_SECRET,
+          { expiresIn: '7d' }
+        );
+
+        res.status(200).send({
+          success: true,
+          message: 'Login or register successful',
+          user,
+          token,
+        });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({
+          message: 'Failed to login or register',
+        });
+      }
+    });
+
     // note creation route here
     app.post('/api/v1/note', async (req, res) => {
       const NoteData = req.body;
