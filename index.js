@@ -469,7 +469,7 @@ async function run() {
       const { name, email, image } = req.body;
 
       try {
-        const user = await UserCollection.findOne({ email });
+        let user = await UserCollection.findOne({ email });
 
         if (!user) {
           const newUser = {
@@ -480,7 +480,7 @@ async function run() {
             createdAt: new Date(),
           };
 
-          const result = await UserCollection.insertOne(newUser);
+          let result = await UserCollection.insertOne(newUser);
           user = result;
         }
 
