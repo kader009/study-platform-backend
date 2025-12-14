@@ -30,9 +30,6 @@ app.use(
 );
 app.use(cookieParser());
 
-// Connect to MongoDB
-connectDB();
-
 // API Routes
 app.use('/api/v1/session', sessionRoutes);
 app.use('/api/v1/material', materialRoutes);
@@ -46,6 +43,17 @@ app.get('/', (req, res) => {
   res.send('student platform server is on');
 });
 
-app.listen(port, () => {
-  console.log(`Student server is on ${port}`);
-});
+// Start server after DB connection
+const startServer = async () => {
+  try {
+    await connectDB();
+    app.listen(port, () => {
+      console.log(`Student server is on ${port}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();

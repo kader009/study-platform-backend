@@ -8,11 +8,11 @@ export const loginUser = async (req, res) => {
   const user = await getUserCollection().findOne({ email });
 
   if (!user) {
-    res.status(404).send({ error: 'user not found' });
+    return res.status(404).send({ error: 'user not found' });
   }
 
   if (user.password !== password) {
-    res.status(401).send({ error: 'invalid password' });
+    return res.status(401).send({ error: 'invalid password' });
   }
 
   const token = jwt.sign(

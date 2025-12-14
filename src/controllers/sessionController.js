@@ -33,7 +33,7 @@ export const getApprovedSessions = async (req, res) => {
     res.status(200).send(Approvesession);
   } catch (error) {
     console.log(error);
-    res.status(404).json({ message: 'approved session not found.' });
+    res.status(500).json({ message: 'Failed to fetch approved sessions' });
   }
 };
 
@@ -46,7 +46,7 @@ export const getApprovedSessionsByEmail = async (req, res) => {
     res.status(200).send(Approvesession);
   } catch (error) {
     console.log(error);
-    res.status(404).json({ message: 'approved session not found.' });
+    res.status(500).json({ message: 'Failed to fetch approved sessions' });
   }
 };
 
@@ -70,7 +70,7 @@ export const getSessionById = async (req, res) => {
     res.send(sessiondata);
   } catch (error) {
     console.error('Error fetching session:', error);
-    res.status(500).send({ message: 'Server error', error });
+    res.status(500).send({ message: 'Server error'});
   }
 };
 
@@ -87,9 +87,7 @@ export const deleteSession = async (req, res) => {
         .status(200)
         .json({ successs: true, message: 'session delete successfully.' });
     } else {
-      res
-        .status(404)
-        .json({ successs: false, message: 'session not found.' });
+      res.status(404).json({ successs: false, message: 'session not found.' });
     }
   } catch (error) {
     console.log(error);
