@@ -83,3 +83,37 @@ export const getAllTutors = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch tutors' });
   }
 };
+
+export const updateUserProfile = async (req, res) => {
+  const { email } = req.params;
+  const { name, image } = req.body;
+
+  const userData = {};
+  if (name) userData.name = name;
+  if (image) userData.image = image;
+
+  if (Object.keys(userData).length === 0) {
+    return res.status(400).json({ message: 'No data provided for update' });
+  }
+
+  try {
+    const result = await getUserCollection().updateOne(
+      { email: email },
+      { $set: userData },
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const updatedUser = await getUserCollection().findOne({ email: email });
+    res.status(200).json({
+      success: true,
+      message: 'User profile updated successfully',
+      updatedUser,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to update user profile' });
+  }
+};
