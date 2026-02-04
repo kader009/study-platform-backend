@@ -9,6 +9,7 @@ import {
   approveSession,
   getSessionsByTutorEmail,
   updateSessionFee,
+  getBookedStudentByEmail,
 } from '../controllers/sessionController.js';
 
 const router = express.Router();
@@ -22,5 +23,6 @@ router.get('/:id', getSessionById);
 router.delete('/:id', deleteSession);
 router.patch('/approve/:id', approveSession);
 router.patch('/:id', updateSessionFee);
+router.get('/booked/:email', getBookedStudentByEmail);
 
 export default router;

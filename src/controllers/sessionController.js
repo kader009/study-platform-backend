@@ -70,7 +70,7 @@ export const getSessionById = async (req, res) => {
     res.send(sessiondata);
   } catch (error) {
     console.error('Error fetching session:', error);
-    res.status(500).send({ message: 'Server error'});
+    res.status(500).send({ message: 'Server error' });
   }
 };
 
@@ -102,7 +102,7 @@ export const approveSession = async (req, res) => {
   try {
     const updateSession = await getSessionCollection().updateOne(
       { _id: new ObjectId(id) },
-      { $set: { status: 'approved' } }
+      { $set: { status: 'approved' } },
     );
     if (updateSession.matchedCount === 0) {
       res.status(404).json({ message: 'session not found.' });
@@ -148,7 +148,7 @@ export const updateSessionFee = async (req, res) => {
 
     const updateSession = await getSessionCollection().updateOne(
       { _id: new ObjectId(id) },
-      { $set: { registrationFee } }
+      { $set: { registrationFee } },
     );
 
     if (updateSession.matchedCount === 0) {
@@ -165,5 +165,26 @@ export const updateSessionFee = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'failed to update session' });
+  }
+};
+
+export const getBookedStudentByEmail = async (req, res) => {
+  const email = req.params.email;
+  const query = { studentEmail: email };
+  try {
+    const bookedStudents = await getSessionCollection().find(query).toArray();
+
+    if (!bookedStudents || bookedStudents.length === 0) {
+      return res.status(404).json({ message: 'No booked students found' });
+    }
+
+    res.status(200).json({
+      message: 'Booked students fetched successfully',
+      count: bookedStudents.length,
+      bookedStudents,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch booked students' });
   }
 };
