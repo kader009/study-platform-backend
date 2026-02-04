@@ -70,7 +70,7 @@ export const updateMaterial = async (req, res) => {
   try {
     const updateMaterial = await getMaterialCollection().updateOne(
       { _id: new ObjectId(id) },
-      { $set: updateData }
+      { $set: updateData },
     );
     if (updateMaterial.matchedCount === 0) {
       res.status(404).json({ message: 'material not found.' });
@@ -80,5 +80,43 @@ export const updateMaterial = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Failed to update material.' });
+  }
+};
+
+export const getMaterialById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const material = await getMaterialCollection().findOne({
+      _id: new ObjectId(id),
+    });
+    if (!material) {
+      return res.status(404).json({ error: 'Material not found' });
+    }
+    res.status(200).json({
+      message: 'Material fetched successfully',
+      material,
+    });
+  } catch (error) {
+    console.error('Error fetching material by ID', error);
+    res.status(500).json({ error: 'internal server error' });
+  }
+};
+
+export const getMaterialBySessionId = async (req, res) => {
+  const { sessionId } = req.params;
+  try {
+    const material = await getMaterialCollection().findOne({
+      SessionId: sessionId,
+    });
+    if (!material) {
+      return res.status(404).json({ error: 'Material not found' });
+    }
+    res.status(200).json({
+      message: 'Material fetched successfully',
+      material,
+    });
+  } catch (error) {
+    console.error('Error fetching material by session ID', error);
+    res.status(500).json({ error: 'internal server error' });
   }
 };

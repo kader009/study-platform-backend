@@ -77,3 +77,22 @@ export const getBookedSessionById = async (req, res) => {
     });
   }
 };
+
+export const getStudentMaterials = async (req, res) => {
+  const email = req.params.email;
+  const query = { studentEmail: email };
+  try {
+    const materials = await getMaterialCollection().find(query).toArray();
+    if (materials.length === 0) {
+      return res
+        .status(404)
+        .json({ message: 'No materials found for the student' });
+    }
+    res.send(materials);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: 'Failed to fetch materials for the student' });
+  }
+};
