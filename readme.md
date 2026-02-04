@@ -1,10 +1,10 @@
-# 🎓 Edunest Backend
+#  Edunest Backend
 
 Edunest is a fully-featured educational platform with role-based access control for `Admin`, `Tutor`, and `Student` users. This backend is built using Node.js, Express.js, and MongoDB with secure authentication and authorization.
 
 ---
 
-## 🚀 Features
+##  Features
 
 - JWT-based Authentication & Authorization
 - Role-Based Access Control (RBAC)
@@ -20,7 +20,7 @@ Edunest is a fully-featured educational platform with role-based access control 
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 - **Node.js**
 - **Express.js**
@@ -34,7 +34,7 @@ Edunest is a fully-featured educational platform with role-based access control 
 
 ---
 
-## 👥 User Roles & Access
+##  User Roles & Access
 
 Edunest supports three user roles with different access levels:
 
@@ -48,15 +48,15 @@ Each protected route uses middleware to verify the user's role and grant/deny ac
 
 ---
 
-## 📦 Installation & Setup
+##  Installation & Setup
 
-### 🔧 Prerequisites
+###  Prerequisites
 
 - Node.js (v18 or higher)
 - MongoDB (local or MongoDB Atlas)
 - Git (for cloning)
 
-### ▶️ Getting Started
+###  Getting Started
 
 ```bash
 # 1. Clone the repository
