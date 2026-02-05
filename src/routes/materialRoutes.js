@@ -6,7 +6,7 @@ import {
   deleteMaterial,
   updateMaterial,
   getMaterialById,
-  getStudentMaterials
+  getMaterialBySessionId
 } from '../controllers/materialController.js';
 import { verifyToken } from '../middlewares/authMiddleware.js';
 
@@ -18,6 +18,6 @@ router.get('/:email', verifyToken, getMaterialsByEmail);
 router.delete('/:id', deleteMaterial);
 router.patch('/:id', updateMaterial);
 router.get('/material/:id', getMaterialById);
-router.get('/student/:email', verifyToken, getStudentMaterials);
+router.get('/student/:email', verifyToken, getMaterialBySessionId);
 
 export default router;
