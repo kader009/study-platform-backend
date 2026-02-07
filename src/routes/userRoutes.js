@@ -5,7 +5,7 @@ import {
   getSingleTutor,
   updateUserRole,
   getAllTutors,
-  updateUserProfile
+  updateUserProfile,
 } from '../controllers/userController.js';
 
 const router = express.Router();
@@ -15,6 +15,6 @@ router.get('/', getAllUsers);
 router.get('/singletutor', getSingleTutor);
 router.patch('/:id', updateUserRole);
 router.get('/tutor', getAllTutors);
-router.patch('/profile/:email', updateUserProfile);
+router.patch('/profile/:id', updateUserProfile);
 
 export default router;

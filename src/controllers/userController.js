@@ -85,8 +85,12 @@ export const getAllTutors = async (req, res) => {
 };
 
 export const updateUserProfile = async (req, res) => {
-  const { email } = req.params;
+  const { id } = req.params;
   const { name, photoUrl } = req.body;
+
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
 
   const userData = {};
   if (name) userData.name = name;
@@ -98,7 +102,7 @@ export const updateUserProfile = async (req, res) => {
 
   try {
     const result = await getUserCollection().updateOne(
-      { email: email },
+      { _id: new ObjectId(id) },
       { $set: userData },
     );
 
@@ -106,7 +110,9 @@ export const updateUserProfile = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const updatedUser = await getUserCollection().findOne({ email: email });
+    const updatedUser = await getUserCollection().findOne({
+      _id: new ObjectId(id),
+    });
     res.status(200).json({
       success: true,
       message: 'User profile updated successfully',
