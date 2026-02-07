@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { getMaterialCollection } from '../models/materialModel.js';
+import { getBookedCollection } from '../models/bookedModel.js';
 
 // Create material
 export const createMaterial = async (req, res) => {
@@ -80,6 +81,73 @@ export const updateMaterial = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Failed to update material.' });
+  }
+};
+
+// Get materials by session ID (with count)
+export const getMaterialsBySessionId = async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    const materials = await getMaterialCollection()
+      .find({ SessionId: sessionId })
+      .toArray();
+
+    res.status(200).json({
+      sessionId,
+      count: materials.length,
+      materials,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch materials for session' });
+  }
+};
+
+// Get all materials from student's booked sessions
+export const getStudentMaterials = async (req, res) => {
+  const { email } = req.params;
+
+  try {
+    // Find all bookings for this student
+    const bookedSessions = await getBookedCollection()
+      .find({ studentEmail: email })
+      .toArray();
+
+    if (!bookedSessions || bookedSessions.length === 0) {
+      return res.status(404).json({
+        message: 'No booked sessions found for this student',
+        totalMaterials: 0,
+        sessions: [],
+      });
+    }
+
+    const sessionIds = bookedSessions.map((b) => b.sessionId);
+
+    // Fetch materials for these sessions
+    const materials = await getMaterialCollection()
+      .find({ SessionId: { $in: sessionIds } })
+      .toArray();
+
+    // Group materials by sessionId
+    const materialsBySession = sessionIds.map((sid) => {
+      const sessionMaterials = materials.filter((m) => m.SessionId === sid);
+      return {
+        sessionId: sid,
+        materialCount: sessionMaterials.length,
+        materials: sessionMaterials,
+      };
+    });
+
+    res.status(200).json({
+      studentEmail: email,
+      totalBookedSessions: sessionIds.length,
+      totalMaterials: materials.length,
+      sessions: materialsBySession,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch student materials' });
   }
 };
 
