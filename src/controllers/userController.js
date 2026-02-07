@@ -86,11 +86,11 @@ export const getAllTutors = async (req, res) => {
 
 export const updateUserProfile = async (req, res) => {
   const { email } = req.params;
-  const { name, image } = req.body;
+  const { name, photoUrl } = req.body;
 
   const userData = {};
   if (name) userData.name = name;
-  if (image) userData.image = image;
+  if (photoUrl) userData.photoUrl = photoUrl;
 
   if (Object.keys(userData).length === 0) {
     return res.status(400).json({ message: 'No data provided for update' });
