@@ -9,7 +9,7 @@ export const createUser = async (req, res) => {
     const existingUser = await getUserCollection().findOne({ email });
 
     if (existingUser) {
-      res.status(409).send({
+      return res.status(409).send({
         successs: false,
         message: 'Email already exist in the database',
       });

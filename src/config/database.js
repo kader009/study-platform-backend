@@ -19,6 +19,10 @@ export const connectDB = async () => {
   try {
     await client.connect();
     database = client.db('studyPlatform');
+
+    // Ensure email is always unique in user collection
+    await database.collection('user').createIndex({ email: 1 }, { unique: true });
+
     console.log('You successfully connected to MongoDB!');
   } catch (error) {
     console.error('MongoDB connection error:', error);
