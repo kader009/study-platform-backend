@@ -184,8 +184,8 @@ export const getBookedStudentByEmail = async (req, res) => {
 
     // Unique student emails collect kora
     const studentEmailSet = new Set();
-    bookings.forEach((b) => {
-      if (b.studentEmail) studentEmailSet.add(b.studentEmail);
+    bookings.forEach((book) => {
+      if (book.studentEmail) studentEmailSet.add(book.studentEmail);
     });
 
     const studentEmails = Array.from(studentEmailSet);
@@ -201,14 +201,14 @@ export const getBookedStudentByEmail = async (req, res) => {
     // Each unique student er booked sessions collect kora
     const uniqueStudents = students.map((student) => {
       const studentBookings = bookings.filter(
-        (b) => b.studentEmail === student.email,
+        (book) => book.studentEmail === student.email,
       );
       return {
         name: student.name,
         email: student.email,
         image: student.image || student.photoUrl || null,
         totalBookings: studentBookings.length,
-        bookedSessionIds: studentBookings.map((b) => b.sessionId),
+        bookedSessionIds: studentBookings.map((book) => book.sessionId),
       };
     });
 
