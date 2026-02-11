@@ -21,7 +21,14 @@ export const connectDB = async () => {
     database = client.db('studyPlatform');
 
     // Ensure email is always unique in user collection
-    await database.collection('user').createIndex({ email: 1 }, { unique: true });
+    await database
+      .collection('user')
+      .createIndex({ email: 1 }, { unique: true });
+
+    // Ensure one student can book a session only once
+    await database
+      .collection('booked')
+      .createIndex({ sessionId: 1, studentEmail: 1 }, { unique: true });
 
     console.log('You successfully connected to MongoDB!');
   } catch (error) {

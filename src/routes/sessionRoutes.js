@@ -19,10 +19,10 @@ router.post('/', createSession);
 router.get('/approved', getApprovedSessions);
 router.get('/approved/:email', getApprovedSessionsByEmail);
 router.get('/email/:email', getSessionsByTutorEmail);
+router.get('/booked/:email', getBookedStudentByEmail);
 router.get('/:id', getSessionById);
 router.delete('/:id', deleteSession);
 router.patch('/approve/:id', approveSession);
 router.patch('/:id', updateSessionFee);
-router.get('/booked/:email', getBookedStudentByEmail);
 
 export default router;

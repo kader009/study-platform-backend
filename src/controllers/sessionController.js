@@ -1,5 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { getSessionCollection } from '../models/sessionModel.js';
+import { getBookedCollection } from '../models/bookedModel.js';
+import { getUserCollection } from '../models/userModel.js';
 
 // Get all sessions
 export const getAllSessions = async (req, res) => {
@@ -169,19 +171,52 @@ export const updateSessionFee = async (req, res) => {
 };
 
 export const getBookedStudentByEmail = async (req, res) => {
-  const email = req.params.email;
-  const query = { studentEmail: email };
-  try {
-    const bookedStudents = await getSessionCollection().find(query).toArray();
+  const tutorEmail = req.params.email;
 
-    if (!bookedStudents || bookedStudents.length === 0) {
-      return res.status(404).json({ message: 'No booked students found' });
+  try {
+    const bookings = await getBookedCollection().find({ tutorEmail }).toArray();
+
+    if (!bookings || bookings.length === 0) {
+      return res
+        .status(404)
+        .json({ message: 'No bookings found for this tutor' });
     }
 
+    // Unique student emails collect kora
+    const studentEmailSet = new Set();
+    bookings.forEach((b) => {
+      if (b.studentEmail) studentEmailSet.add(b.studentEmail);
+    });
+
+    const studentEmails = Array.from(studentEmailSet);
+
+    // Unique student details fetch
+    let students = [];
+    if (studentEmails.length > 0) {
+      students = await getUserCollection()
+        .find({ email: { $in: studentEmails } })
+        .toArray();
+    }
+
+    // Each unique student er booked sessions collect kora
+    const uniqueStudents = students.map((student) => {
+      const studentBookings = bookings.filter(
+        (b) => b.studentEmail === student.email,
+      );
+      return {
+        name: student.name,
+        email: student.email,
+        image: student.image || student.photoUrl || null,
+        totalBookings: studentBookings.length,
+        bookedSessionIds: studentBookings.map((b) => b.sessionId),
+      };
+    });
+
     res.status(200).json({
-      message: 'Booked students fetched successfully',
-      count: bookedStudents.length,
-      bookedStudents,
+      message: 'Unique booked students fetched successfully',
+      totalUniqueStudents: uniqueStudents.length,
+      totalBookings: bookings.length,
+      students: uniqueStudents,
     });
   } catch (error) {
     console.error(error);

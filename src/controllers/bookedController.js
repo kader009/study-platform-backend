@@ -16,6 +16,18 @@ export const bookSession = async (req, res) => {
       return res.status(404).json({ error: 'Session not found' });
     }
 
+    // Check if student already booked this session
+    const alreadyBooked = await getBookedCollection().findOne({
+      sessionId,
+      studentEmail,
+    });
+
+    if (alreadyBooked) {
+      return res.status(409).json({
+        error: 'You have already booked this session',
+      });
+    }
+
     const result = await getBookedCollection().insertOne({
       sessionId,
       studentEmail,
