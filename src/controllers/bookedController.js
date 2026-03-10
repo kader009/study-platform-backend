@@ -71,30 +71,49 @@ export const getBookedSessionById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const query = { SessionId: id };
-    const session = await getMaterialCollection().find(query).toArray();
-    console.log('sessionId', session);
+    const materials = await getMaterialCollection()
+      .find({ SessionId: id })
+      .toArray();
 
-    if (!session || session.length === 0) {
+    if (!materials || materials.length === 0) {
       return res.status(404).json({
-        message: 'session not found',
+        message: 'No materials found for this session',
       });
     }
 
-    res.status(200).json({ msessage: 'session fetch successfully', session });
+    res
+      .status(200)
+      .json({ message: 'Materials fetched successfully', materials });
   } catch (error) {
     console.error(error);
     res.status(500).send({
-      message: 'failed to get booked session',
+      message: 'failed to get booked session materials',
     });
   }
 };
 
 export const getStudentMaterials = async (req, res) => {
   const email = req.params.email;
-  const query = { studentEmail: email };
   try {
-    const materials = await getMaterialCollection().find(query).toArray();
+    // Step 1: Find all booked sessions for this student
+    const bookedSessions = await getBookedCollection()
+      .find({ studentEmail: email })
+      .toArray();
+
+    if (!bookedSessions || bookedSessions.length === 0) {
+      return res.status(404).json({
+        message: 'No booked sessions found for this student',
+      });
+    }
+
+    // Step 2: Extract sessionIds from booked sessions
+    const sessionIds = bookedSessions.map((b) => b.sessionId);
+
+    // Step 3: Fetch materials that belong to those sessions
+    const materials = await getMaterialCollection()
+      .find({ SessionId: { $in: sessionIds } })
+      .toArray();
+
     if (materials.length === 0) {
       return res
         .status(404)
