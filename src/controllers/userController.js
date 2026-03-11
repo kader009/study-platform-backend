@@ -14,7 +14,10 @@ export const createUser = async (req, res) => {
         message: 'Email already exist in the database',
       });
     }
-    const result = await getUserCollection().insertOne(data);
+    const result = await getUserCollection().insertOne({
+      ...data,
+      createdAt: new Date(),
+    });
     res.send({
       successs: true,
       message: 'User created successfully.',
