@@ -31,6 +31,11 @@ export const getMaterialsByEmail = async (req, res) => {
   const query = { TutorEmail: email };
   try {
     const sessionMaterial = await getMaterialCollection().find(query).toArray();
+    if (sessionMaterial.length === 0) {
+      return res
+        .status(404)
+        .json({ message: 'No materials found for this tutor' });
+    }
     res.send(sessionMaterial);
   } catch (error) {
     console.log(error);
